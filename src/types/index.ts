@@ -5,6 +5,7 @@ export interface EggType {
   count: number;
   trays: number;
   units: number;
+  useTrays: boolean;
 }
 
 export interface Aviary {

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { EggType, Aviary, Batch, CollectionMode } from '@/types';
 
@@ -20,23 +19,24 @@ interface EggContextType {
   addAviary: (batchId: string, aviary: Aviary) => void;
   updateAviary: (batchId: string, aviary: Aviary) => void;
   deleteAviary: (batchId: string, aviaryId: string) => void;
+  clearSelectedEggData: () => void;
 }
 
 const EggContext = createContext<EggContextType | undefined>(undefined);
 
 // Default data
 const defaultEggs: EggType[] = [
-  { id: '1', name: 'Machos', count: 0, trays: 0, units: 0 },
-  { id: '2', name: 'Fêmeas', count: 0, trays: 0, units: 0 },
-  { id: '3', name: 'Ovos Trincados', count: 0, trays: 0, units: 0 },
-  { id: '4', name: 'Ovos Sujos de Ninho', count: 0, trays: 0, units: 0 },
-  { id: '5', name: 'Ovos Pequenos', count: 0, trays: 0, units: 0 },
-  { id: '6', name: 'Ovos Incubáveis', count: 0, trays: 0, units: 0 },
-  { id: '7', name: 'Ovos Quebrados', count: 0, trays: 0, units: 0 },
-  { id: '8', name: 'Ovos Deformados', count: 0, trays: 0, units: 0 },
-  { id: '9', name: 'Ovos Casca Fina', count: 0, trays: 0, units: 0 },
-  { id: '10', name: 'Eliminados', count: 0, trays: 0, units: 0 },
-  { id: '11', name: 'Água', count: 0, trays: 0, units: 0 },
+  { id: '1', name: 'Aves Macho', count: 0, trays: 0, units: 0, useTrays: false },
+  { id: '2', name: 'Aves Fêmea', count: 0, trays: 0, units: 0, useTrays: false },
+  { id: '3', name: 'Ovos Trincados', count: 0, trays: 0, units: 0, useTrays: true },
+  { id: '4', name: 'Ovos Sujos de Ninho', count: 0, trays: 0, units: 0, useTrays: true },
+  { id: '5', name: 'Ovos Pequenos', count: 0, trays: 0, units: 0, useTrays: true },
+  { id: '6', name: 'Ovos Incubáveis', count: 0, trays: 0, units: 0, useTrays: true },
+  { id: '7', name: 'Ovos Quebrados', count: 0, trays: 0, units: 0, useTrays: true },
+  { id: '8', name: 'Ovos Deformados', count: 0, trays: 0, units: 0, useTrays: true },
+  { id: '9', name: 'Ovos Casca Fina', count: 0, trays: 0, units: 0, useTrays: true },
+  { id: '10', name: 'Eliminados', count: 0, trays: 0, units: 0, useTrays: true },
+  { id: '11', name: 'Água', count: 0, trays: 0, units: 0, useTrays: false },
 ];
 
 const defaultBatches: Batch[] = [
@@ -99,12 +99,20 @@ export const EggProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setEggs(prevEggs =>
       prevEggs.map(egg => {
         if (egg.id === id) {
-          const totalCount = (trays * (selectedAviary?.trayValue || 30)) + units;
+          const totalCount = egg.useTrays 
+            ? (trays * (selectedAviary?.trayValue || 30)) + units 
+            : units;
           return { ...egg, count: totalCount, trays, units };
         }
         return egg;
       })
     );
+  };
+
+  const clearSelectedEggData = () => {
+    if (selectedEgg) {
+      setSelectedEgg({ ...selectedEgg, trays: 0, units: 0 });
+    }
   };
 
   const addBatch = (batch: Batch) => {
@@ -229,6 +237,7 @@ export const EggProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addAviary,
       updateAviary,
       deleteAviary,
+      clearSelectedEggData,
     }}>
       {children}
     </EggContext.Provider>

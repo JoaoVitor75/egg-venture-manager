@@ -18,7 +18,11 @@ const EggTypeButton: React.FC<EggTypeButtonProps> = ({ egg }) => {
   return (
     <button 
       onClick={handleClick}
-      className={isSelected ? 'egg-button-selected' : 'egg-button'}
+      className={`w-full py-3 px-4 rounded-xl text-left font-medium relative shadow-sm ${
+        isSelected 
+          ? 'bg-egg-green text-white' 
+          : 'bg-white text-gray-800 hover:bg-gray-50'
+      }`}
     >
       {egg.name}
       {egg.count > 0 && (

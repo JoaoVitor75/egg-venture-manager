@@ -5,9 +5,17 @@ import EggCounter from '@/components/EggCounter';
 import { useEggContext } from '@/contexts/EggContext';
 import AviarySelector from '@/components/AviarySelector';
 import TrayValueDisplay from '@/components/TrayValueDisplay';
+import { useEffect } from 'react';
 
 const Home = () => {
-  const { eggs, selectedEgg } = useEggContext();
+  const { eggs, selectedEgg, setSelectedEgg } = useEggContext();
+
+  // Fechar o contador quando mudar de página
+  useEffect(() => {
+    return () => {
+      setSelectedEgg(null);
+    };
+  }, [setSelectedEgg]);
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -26,7 +34,39 @@ const Home = () => {
         </div>
       </div>
       
-      {selectedEgg && <EggCounter />}
+      {selectedEgg && <EggCounterWithSubmit />}
+    </div>
+  );
+};
+
+const EggCounterWithSubmit = () => {
+  const { selectedEgg, updateEggCount, clearSelectedEggData, setSelectedEgg } = useEggContext();
+  
+  if (!selectedEgg) return null;
+  
+  const handleSubmit = () => {
+    // Atualiza os dados
+    updateEggCount(selectedEgg.id, selectedEgg.trays, selectedEgg.units);
+    
+    // Limpa os campos
+    clearSelectedEggData();
+    
+    // Fecha o contador
+    setSelectedEgg(null);
+  };
+  
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-end z-50">
+      <div className="w-full bg-white rounded-t-xl p-4 space-y-4">
+        <EggCounter />
+        
+        <button 
+          onClick={handleSubmit}
+          className="w-full py-3 bg-egg-green text-white font-medium rounded-lg shadow-sm"
+        >
+          Salvar
+        </button>
+      </div>
     </div>
   );
 };
