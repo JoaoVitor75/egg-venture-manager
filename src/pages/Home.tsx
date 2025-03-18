@@ -34,39 +34,7 @@ const Home = () => {
         </div>
       </div>
       
-      {selectedEgg && <EggCounterWithSubmit />}
-    </div>
-  );
-};
-
-const EggCounterWithSubmit = () => {
-  const { selectedEgg, updateEggCount, clearSelectedEggData, setSelectedEgg } = useEggContext();
-  
-  if (!selectedEgg) return null;
-  
-  const handleSubmit = () => {
-    // Atualiza os dados
-    updateEggCount(selectedEgg.id, selectedEgg.trays, selectedEgg.units);
-    
-    // Limpa os campos
-    clearSelectedEggData();
-    
-    // Fecha o contador
-    setSelectedEgg(null);
-  };
-  
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-end z-50">
-      <div className="w-full bg-white rounded-t-xl p-4 space-y-4">
-        <EggCounter />
-        
-        <button 
-          onClick={handleSubmit}
-          className="w-full py-3 bg-egg-green text-white font-medium rounded-lg shadow-sm"
-        >
-          Salvar
-        </button>
-      </div>
+      {selectedEgg && <EggCounter />}
     </div>
   );
 };

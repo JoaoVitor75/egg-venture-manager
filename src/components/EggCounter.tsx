@@ -63,27 +63,29 @@ const EggCounter = () => {
 
         <div className="mb-6">
           <div className="flex flex-col gap-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-center mb-3 text-gray-500 font-medium">Bandejas</h3>
-              <div className="flex justify-center items-center gap-4">
-                <button 
-                  onClick={() => handleDecrease('trays')}
-                  className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
-                >
-                  <Minus size={20} />
-                </button>
-                <div className="egg-counter w-16 h-16 text-2xl">{trays}</div>
-                <button 
-                  onClick={() => handleIncrease('trays')}
-                  className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
-                >
-                  <Plus size={20} />
-                </button>
+            {selectedEgg.useTrays && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-center mb-3 text-gray-700 font-medium">Bandejas</h3>
+                <div className="flex justify-center items-center gap-4">
+                  <button 
+                    onClick={() => handleDecrease('trays')}
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                  >
+                    <Minus size={20} />
+                  </button>
+                  <div className="egg-counter w-16 h-16 text-2xl">{trays}</div>
+                  <button 
+                    onClick={() => handleIncrease('trays')}
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-center mb-3 text-gray-500 font-medium">Unidades</h3>
+              <h3 className="text-center mb-3 text-gray-700 font-medium">Unidades</h3>
               <div className="flex justify-center items-center gap-4">
                 <button 
                   onClick={() => handleDecrease('units')}

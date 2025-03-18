@@ -24,7 +24,7 @@ const EggTypeButton: React.FC<EggTypeButtonProps> = ({ egg }) => {
           : 'bg-white text-gray-800 hover:bg-gray-50'
       }`}
     >
-      {egg.name}
+      <span className="text-lg">{egg.name}</span>
       {egg.count > 0 && (
         <span className="absolute right-3 bg-white text-egg-green-dark text-xs font-bold px-2 py-0.5 rounded-full">
           {egg.count}
