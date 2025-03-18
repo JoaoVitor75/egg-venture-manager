@@ -21,7 +21,7 @@ const EggTypeButton: React.FC<EggTypeButtonProps> = ({ egg }) => {
       className={`w-full py-3 px-4 rounded-xl text-left font-medium relative shadow-sm ${
         isSelected 
           ? 'bg-egg-green text-white' 
-          : 'bg-green-50 text-gray-800 hover:bg-green-100'
+          : 'bg-[#F2FCE2] text-gray-800 hover:bg-[#e8f7d4]'
       }`}
     >
       <span className="text-lg">{egg.name}</span>
