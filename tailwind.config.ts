@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,27 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Custom colors for the egg collection app
+				"egg-green": {
+					DEFAULT: "#7BB662",
+					light: "#A1D884",
+					dark: "#518541"
+				},
+				"egg-yellow": {
+					DEFAULT: "#FFC53D",
+					light: "#FFD87F",
+					dark: "#D9A52C"
+				},
+				"egg-brown": {
+					DEFAULT: "#84563C",
+					light: "#AA7F65",
+					dark: "#5E3C2A"
+				},
+				"egg-red": {
+					DEFAULT: "#E34F4F",
+					light: "#EE7F7F",
+					dark: "#B93E3E"
 				}
 			},
 			borderRadius: {
