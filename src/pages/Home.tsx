@@ -65,7 +65,7 @@ const Home = () => {
         {/* Seção de Água */}
         {waterEgg && (
           <div className="bg-[#F2FCE2] p-4 rounded-xl shadow-sm mb-4">
-            <h3 className="text-lg font-medium mb-2">Água</h3>
+            <h3 className="text-lg font-medium mb-2 text-egg-green-dark">Água</h3>
             <Input
               type="number"
               value={waterValue}
