@@ -26,21 +26,12 @@ const Home = () => {
   // Encontrar o egg do tipo Água
   const waterEgg = eggs.find(egg => egg.name === 'Água');
 
-  const handleWaterSubmit = () => {
+  const handleWaterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setWaterValue(e.target.value);
+    
     if (waterEgg) {
-      const units = parseInt(waterValue) || 0;
-      
-      // Atualizar o valor da água
+      const units = parseInt(e.target.value) || 0;
       updateEggCount(waterEgg.id, 0, units);
-      
-      // Mostrar confirmação
-      toast({
-        title: "Água registrada",
-        description: `${units} unidades de água foram registradas`,
-      });
-      
-      // Limpar o campo
-      setWaterValue('');
     }
   };
 
@@ -81,16 +72,10 @@ const Home = () => {
             <Input
               type="number"
               value={waterValue}
-              onChange={(e) => setWaterValue(e.target.value)}
+              onChange={handleWaterChange}
               placeholder="Digite a quantidade de água"
               className="mb-3"
             />
-            <Button 
-              onClick={handleWaterSubmit}
-              className="w-full bg-egg-green hover:bg-egg-green-dark"
-            >
-              Registrar Água
-            </Button>
           </div>
         )}
 

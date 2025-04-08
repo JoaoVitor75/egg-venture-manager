@@ -51,6 +51,9 @@ const EggCounter = () => {
 
   if (!selectedEgg || !selectedAviary) return null;
 
+  // Calculate the total count based on trays and units
+  const totalCount = trays * selectedAviary.trayValue + units;
+
   return (
     <div className="fixed inset-0 bg-black/50 z-20 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 animate-in zoom-in duration-300">
@@ -63,26 +66,29 @@ const EggCounter = () => {
 
         <div className="mb-6">
           <div className="flex flex-col gap-6">
-            {selectedEgg.useTrays && (
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-center mb-3 text-gray-700 font-medium">Bandejas</h3>
-                <div className="flex justify-center items-center gap-4">
-                  <button 
-                    onClick={() => handleDecrease('trays')}
-                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
-                  >
-                    <Minus size={20} />
-                  </button>
-                  <div className="egg-counter w-16 h-16 text-2xl">{trays}</div>
-                  <button 
-                    onClick={() => handleIncrease('trays')}
-                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
-                  >
-                    <Plus size={20} />
-                  </button>
-                </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="text-center mb-3 text-gray-700 font-medium">Bandejas</h3>
+              <div className="flex justify-center items-center gap-4">
+                <button 
+                  onClick={() => handleDecrease('trays')}
+                  className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                >
+                  <Minus size={20} />
+                </button>
+                <div className="egg-counter w-16 h-16 text-2xl">{trays}</div>
+                <button 
+                  onClick={() => handleIncrease('trays')}
+                  className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                >
+                  <Plus size={20} />
+                </button>
               </div>
-            )}
+              {selectedAviary.trayValue > 0 && (
+                <p className="text-center text-sm text-gray-500 mt-2">
+                  {trays} x {selectedAviary.trayValue} = {trays * selectedAviary.trayValue} ovos
+                </p>
+              )}
+            </div>
 
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-center mb-3 text-gray-700 font-medium">Unidades</h3>
@@ -101,6 +107,11 @@ const EggCounter = () => {
                   <Plus size={20} />
                 </button>
               </div>
+            </div>
+            
+            <div className="bg-[#F2FCE2] p-4 rounded-lg">
+              <h3 className="text-center font-medium text-egg-green-dark">Total de Ovos</h3>
+              <p className="text-center text-xl font-bold text-egg-green-dark">{totalCount}</p>
             </div>
           </div>
         </div>
