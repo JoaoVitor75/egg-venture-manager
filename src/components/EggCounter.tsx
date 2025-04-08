@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { useEggContext } from '@/contexts/EggContext';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from './ui/input';
 
 const EggCounter = () => {
-  const { selectedEgg, updateEggCount, setSelectedEgg, collectionMode, selectedAviary } = useEggContext();
+  const { selectedEgg, updateEggCount, setSelectedEgg, selectedAviary } = useEggContext();
   const [trays, setTrays] = useState(0);
   const [units, setUnits] = useState(0);
   const { toast } = useToast();
@@ -49,10 +50,20 @@ const EggCounter = () => {
     setSelectedEgg(null);
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value) || 0;
+    setUnits(value);
+  };
+
   if (!selectedEgg || !selectedAviary) return null;
 
+  const isBird = selectedEgg.name === 'Aves Macho' || selectedEgg.name === 'Aves Fêmea';
+  const isWater = selectedEgg.name === 'Água';
+
   // Calculate the total count based on trays and units
-  const totalCount = trays * selectedAviary.trayValue + units;
+  const totalCount = selectedEgg.useTrays && !isBird
+    ? trays * selectedAviary.trayValue + units
+    : units;
 
   return (
     <div className="fixed inset-0 bg-black/50 z-20 flex items-center justify-center p-4">
@@ -66,51 +77,65 @@ const EggCounter = () => {
 
         <div className="mb-6">
           <div className="flex flex-col gap-6">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-center mb-3 text-gray-700 font-medium">Bandejas</h3>
-              <div className="flex justify-center items-center gap-4">
-                <button 
-                  onClick={() => handleDecrease('trays')}
-                  className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
-                >
-                  <Minus size={20} />
-                </button>
-                <div className="egg-counter w-16 h-16 text-2xl">{trays}</div>
-                <button 
-                  onClick={() => handleIncrease('trays')}
-                  className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
-                >
-                  <Plus size={20} />
-                </button>
+            {selectedEgg.useTrays && !isBird && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-center mb-3 text-gray-700 font-medium">Bandejas</h3>
+                <div className="flex justify-center items-center gap-4">
+                  <button 
+                    onClick={() => handleDecrease('trays')}
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                  >
+                    <Minus size={20} />
+                  </button>
+                  <div className="egg-counter w-16 h-16 text-2xl">{trays}</div>
+                  <button 
+                    onClick={() => handleIncrease('trays')}
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+                {selectedAviary.trayValue > 0 && (
+                  <p className="text-center text-sm text-gray-500 mt-2">
+                    {trays} x {selectedAviary.trayValue} = {trays * selectedAviary.trayValue} ovos
+                  </p>
+                )}
               </div>
-              {selectedAviary.trayValue > 0 && (
-                <p className="text-center text-sm text-gray-500 mt-2">
-                  {trays} x {selectedAviary.trayValue} = {trays * selectedAviary.trayValue} ovos
-                </p>
-              )}
-            </div>
+            )}
 
             <div className="bg-gray-50 p-4 rounded-lg">
               <h3 className="text-center mb-3 text-gray-700 font-medium">Unidades</h3>
-              <div className="flex justify-center items-center gap-4">
-                <button 
-                  onClick={() => handleDecrease('units')}
-                  className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
-                >
-                  <Minus size={20} />
-                </button>
-                <div className="egg-counter w-16 h-16 text-2xl">{units}</div>
-                <button 
-                  onClick={() => handleIncrease('units')}
-                  className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
-                >
-                  <Plus size={20} />
-                </button>
-              </div>
+              {isWater ? (
+                <Input
+                  type="number"
+                  value={units || ''}
+                  onChange={handleInputChange}
+                  placeholder="Digite a quantidade de água"
+                  className="text-center"
+                />
+              ) : (
+                <div className="flex justify-center items-center gap-4">
+                  <button 
+                    onClick={() => handleDecrease('units')}
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                  >
+                    <Minus size={20} />
+                  </button>
+                  <div className="egg-counter w-16 h-16 text-2xl">{units}</div>
+                  <button 
+                    onClick={() => handleIncrease('units')}
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                  >
+                    <Plus size={20} />
+                  </button>
+                </div>
+              )}
             </div>
             
             <div className="bg-[#F2FCE2] p-4 rounded-lg">
-              <h3 className="text-center font-medium text-egg-green-dark">Total de Ovos</h3>
+              <h3 className="text-center font-medium text-egg-green-dark">
+                {isBird ? "Aves mortas" : "Total de Ovos"}
+              </h3>
               <p className="text-center text-xl font-bold text-egg-green-dark">{totalCount}</p>
             </div>
           </div>

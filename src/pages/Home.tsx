@@ -5,16 +5,16 @@ import EggCounter from '@/components/EggCounter';
 import { useEggContext } from '@/contexts/EggContext';
 import AviarySelector from '@/components/AviarySelector';
 import TrayValueDisplay from '@/components/TrayValueDisplay';
-import { useEffect, useState } from 'react';
-import { Input } from '@/components/ui/input';
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Send } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Home = () => {
-  const { eggs, selectedEgg, setSelectedEgg, updateEggCount, clearAllEggCounts } = useEggContext();
-  const [waterValue, setWaterValue] = useState('');
+  const { eggs, selectedEgg, setSelectedEgg, clearAllEggCounts } = useEggContext();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Fechar o contador quando mudar de página
   useEffect(() => {
@@ -22,18 +22,6 @@ const Home = () => {
       setSelectedEgg(null);
     };
   }, [setSelectedEgg]);
-
-  // Encontrar o egg do tipo Água
-  const waterEgg = eggs.find(egg => egg.name === 'Água');
-
-  const handleWaterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setWaterValue(e.target.value);
-    
-    if (waterEgg) {
-      const units = parseInt(e.target.value) || 0;
-      updateEggCount(waterEgg.id, 0, units);
-    }
-  };
 
   const handleSubmitAll = () => {
     // Aqui você enviaria todos os dados para o servidor
@@ -46,38 +34,21 @@ const Home = () => {
     clearAllEggCounts();
   };
 
-  // Filtrar água da lista principal
-  const eggTypesWithoutWater = eggs.filter(egg => egg.name !== 'Água');
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <Header title="Tonhão" />
       
-      <div className="container mx-auto p-4 flex-1 flex flex-col">
+      <div className={`container mx-auto p-4 flex-1 flex flex-col ${isMobile ? 'max-w-md' : ''}`}>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <AviarySelector />
           <TrayValueDisplay />
         </div>
         
         <div className="grid gap-3 mb-4 flex-1">
-          {eggTypesWithoutWater.map(egg => (
+          {eggs.map(egg => (
             <EggTypeButton key={egg.id} egg={egg} />
           ))}
         </div>
-        
-        {/* Seção de Água */}
-        {waterEgg && (
-          <div className="bg-[#F2FCE2] p-4 rounded-xl shadow-sm mb-4">
-            <h3 className="text-lg font-medium mb-2 text-egg-green-dark">Água</h3>
-            <Input
-              type="number"
-              value={waterValue}
-              onChange={handleWaterChange}
-              placeholder="Digite a quantidade de água"
-              className="mb-3"
-            />
-          </div>
-        )}
 
         {/* Botão Enviar como no protótipo */}
         <Button 
