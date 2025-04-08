@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { ChevronDown, Plus } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useEggContext } from '@/contexts/EggContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -74,13 +74,17 @@ const AviarySelector = () => {
       <div className="flex flex-col">
         <span className="text-center mb-1 text-gray-500 text-sm">Aviário</span>
         <div className="relative">
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="w-full py-2 px-4 bg-white border border-gray-300 rounded-md flex items-center justify-between shadow-sm"
-          >
-            <span>{selectedAviary.name}</span>
-            <ChevronDown size={16} />
-          </button>
+          <div className="bg-white border border-gray-300 rounded-md p-1 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="pl-2">{selectedAviary.name}</span>
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-2 text-gray-500 hover:bg-gray-100 rounded"
+              >
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
           
           {isOpen && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
@@ -89,7 +93,7 @@ const AviarySelector = () => {
                   key={aviary.id}
                   onClick={() => handleAviarySelect(aviary.id)}
                   className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
-                    aviary.id === selectedAviary.id ? 'bg-egg-green/10 text-egg-green-dark font-medium' : ''
+                    aviary.id === selectedAviary.id ? 'bg-[#F2FCE2] text-[#8BC53F] font-medium' : ''
                   }`}
                 >
                   {aviary.name}
@@ -98,8 +102,8 @@ const AviarySelector = () => {
               
               <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                 <DialogTrigger asChild>
-                  <button className="w-full text-left px-4 py-2 text-egg-green-dark font-medium hover:bg-gray-50 flex items-center">
-                    <Plus size={16} className="mr-2" /> Adicionar aviário
+                  <button className="w-full text-left px-4 py-2 text-[#8BC53F] font-medium hover:bg-gray-50 flex items-center">
+                    + Adicionar aviário
                   </button>
                 </DialogTrigger>
                 <DialogContent>
@@ -135,7 +139,7 @@ const AviarySelector = () => {
                     <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
                       Cancelar
                     </Button>
-                    <Button onClick={handleAddAviary} className="bg-egg-green hover:bg-egg-green-dark">
+                    <Button onClick={handleAddAviary} className="bg-[#8BC53F] hover:bg-[#7AB22F]">
                       Adicionar
                     </Button>
                   </div>

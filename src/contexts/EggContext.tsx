@@ -20,6 +20,7 @@ interface EggContextType {
   updateAviary: (batchId: string, aviary: Aviary) => void;
   deleteAviary: (batchId: string, aviaryId: string) => void;
   clearSelectedEggData: () => void;
+  clearAllEggCounts: () => void;
 }
 
 const EggContext = createContext<EggContextType | undefined>(undefined);
@@ -113,6 +114,17 @@ export const EggProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (selectedEgg) {
       setSelectedEgg({ ...selectedEgg, trays: 0, units: 0 });
     }
+  };
+
+  const clearAllEggCounts = () => {
+    setEggs(prevEggs =>
+      prevEggs.map(egg => ({
+        ...egg,
+        count: 0,
+        trays: 0,
+        units: 0
+      }))
+    );
   };
 
   const addBatch = (batch: Batch) => {
@@ -238,6 +250,7 @@ export const EggProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateAviary,
       deleteAviary,
       clearSelectedEggData,
+      clearAllEggCounts,
     }}>
       {children}
     </EggContext.Provider>
