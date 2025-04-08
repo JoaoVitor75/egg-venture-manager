@@ -77,6 +77,7 @@ const EggCounter = () => {
 
         <div className="mb-6">
           <div className="flex flex-col gap-6">
+            {/* Mostrar opção de bandejas apenas para tipos de ovos que não sejam aves */}
             {selectedEgg.useTrays && !isBird && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-center mb-3 text-gray-700 font-medium">Bandejas</h3>
@@ -132,12 +133,15 @@ const EggCounter = () => {
               )}
             </div>
             
-            <div className="bg-[#F2FCE2] p-4 rounded-lg">
-              <h3 className="text-center font-medium text-egg-green-dark">
-                {isBird ? "Aves mortas" : "Total de Ovos"}
-              </h3>
-              <p className="text-center text-xl font-bold text-egg-green-dark">{totalCount}</p>
-            </div>
+            {/* Mostrar o total apenas para tipos que não sejam água */}
+            {!isWater && (
+              <div className="bg-[#F2FCE2] p-4 rounded-lg">
+                <h3 className="text-center font-medium text-egg-green-dark">
+                  {isBird ? "Aves mortas" : "Total de Ovos"}
+                </h3>
+                <p className="text-center text-xl font-bold text-egg-green-dark">{totalCount}</p>
+              </div>
+            )}
           </div>
         </div>
 
