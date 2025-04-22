@@ -1,6 +1,6 @@
 
 import { Plus, Minus, X, Check } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useEggContext } from '@/contexts/EggContext';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -10,20 +10,31 @@ const EggCounter = () => {
   const { selectedEgg, updateEggCount, setSelectedEgg, selectedAviary } = useEggContext();
   const [trays, setTrays] = useState(0);
   const [units, setUnits] = useState(0);
+  const [editingUnits, setEditingUnits] = useState(false);
+  const [unitInputValue, setUnitInputValue] = useState('');
   const { toast } = useToast();
+  const unitInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (selectedEgg) {
       setTrays(selectedEgg.trays || 0);
       setUnits(selectedEgg.units || 0);
+      setUnitInputValue((selectedEgg.units || 0).toString())
     }
   }, [selectedEgg]);
+
+  useEffect(() => {
+    if (editingUnits && unitInputRef.current) {
+      unitInputRef.current.focus();
+    }
+  }, [editingUnits]);
 
   const handleIncrease = (type: 'trays' | 'units') => {
     if (type === 'trays') {
       setTrays(prev => prev + 1);
     } else {
       setUnits(prev => prev + 1);
+      setUnitInputValue((units + 1).toString());
     }
   };
 
@@ -32,6 +43,7 @@ const EggCounter = () => {
       setTrays(prev => (prev > 0 ? prev - 1 : 0));
     } else {
       setUnits(prev => (prev > 0 ? prev - 1 : 0));
+      setUnitInputValue(units > 0 ? (units - 1).toString() : '0');
     }
   };
 
@@ -50,9 +62,32 @@ const EggCounter = () => {
     setSelectedEgg(null);
   };
 
+  const handleUnitsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    setUnitInputValue(value);
+    setUnits(parseInt(value) || 0);
+  };
+
+  const handleUnitsDisplayClick = () => {
+    setUnitInputValue(units.toString());
+    setEditingUnits(true);
+  };
+
+  const handleUnitsInputBlur = () => {
+    setEditingUnits(false);
+  };
+
+  const handleUnitsInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      setEditingUnits(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Para Água (mantém como estava)
     const value = parseInt(e.target.value) || 0;
     setUnits(value);
+    setUnitInputValue(value.toString());
   };
 
   if (!selectedEgg || !selectedAviary) return null;
@@ -77,8 +112,8 @@ const EggCounter = () => {
 
         <div className="mb-6">
           <div className="flex flex-col gap-6">
-            {/* Mostrar opção de bandejas para todos os tipos de ovos exceto aves e água */}
-            {selectedEgg.useTrays && !isBird && (
+            {/* Mostrar opção de bandejas apenas para tipos de ovos que não sejam aves e água */}
+            {selectedEgg.useTrays && !isBird && !isWater && (
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-center mb-3 text-gray-700 font-medium">Bandejas</h3>
                 <div className="flex justify-center items-center gap-4">
@@ -88,7 +123,7 @@ const EggCounter = () => {
                   >
                     <Minus size={20} />
                   </button>
-                  <div className="egg-counter w-16 h-16 text-2xl">{trays}</div>
+                  <div className="egg-counter w-16 h-16 text-2xl flex items-center justify-center">{trays}</div>
                   <button 
                     onClick={() => handleIncrease('trays')}
                     className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
@@ -122,7 +157,26 @@ const EggCounter = () => {
                   >
                     <Minus size={20} />
                   </button>
-                  <div className="egg-counter w-16 h-16 text-2xl">{units}</div>
+                  {editingUnits ? (
+                    <Input
+                      ref={unitInputRef}
+                      type="number"
+                      value={unitInputValue}
+                      onChange={handleUnitsInputChange}
+                      onBlur={handleUnitsInputBlur}
+                      onKeyDown={handleUnitsInputKeyDown}
+                      className="w-16 h-16 text-2xl text-center border-none outline-none shadow-inner bg-white font-bold"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                    />
+                  ) : (
+                    <div
+                      className="egg-counter w-16 h-16 text-2xl flex items-center justify-center font-bold cursor-pointer select-none"
+                      onClick={handleUnitsDisplayClick}
+                    >
+                      {units}
+                    </div>
+                  )}
                   <button 
                     onClick={() => handleIncrease('units')}
                     className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
@@ -133,15 +187,25 @@ const EggCounter = () => {
               )}
             </div>
             
-            {/* Mostrar o total para todos os tipos exceto água */}
-            {!isWater && (
+            {/* Mostrar o total para todos os tipos exceto água e aves mortas */}
+            {!isWater && !isBird && (
               <div className="bg-[#F2FCE2] p-4 rounded-lg">
                 <h3 className="text-center font-medium text-egg-green-dark">
-                  {isBird ? "Aves mortas" : "Total de Ovos"}
+                  Total de Ovos
                 </h3>
                 <p className="text-center text-xl font-bold text-egg-green-dark">{totalCount}</p>
               </div>
             )}
+            {/* Para Machos/Fêmeas, mostrar “Aves mortas” */}
+            {isBird && (
+              <div className="bg-[#F2FCE2] p-4 rounded-lg">
+                <h3 className="text-center font-medium text-egg-green-dark">
+                  Aves mortas
+                </h3>
+                <p className="text-center text-xl font-bold text-egg-green-dark">{units}</p>
+              </div>
+            )}
+            {/* Para Água, não mostrar campo adicional */}
           </div>
         </div>
 
