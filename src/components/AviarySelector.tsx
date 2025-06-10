@@ -1,154 +1,149 @@
-
-import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronDown, RefreshCw } from 'lucide-react';
 import { useEggContext } from '@/contexts/EggContext';
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 
 const AviarySelector = () => {
-  const { selectedBatch, selectedAviary, setSelectedAviary } = useEggContext();
+  const { 
+    batches, 
+    selectedBatch, 
+    selectedAviary, 
+    setSelectedBatch, 
+    setSelectedAviary, 
+    loadAviariesFromAPI,
+    loading 
+  } = useEggContext();
+  
   const [isOpen, setIsOpen] = useState(false);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newAviaryName, setNewAviaryName] = useState('');
-  const [newAviaryValue, setNewAviaryValue] = useState('30');
-  const { addAviary } = useEggContext();
-  const { toast } = useToast();
 
-  if (!selectedBatch || !selectedAviary) return null;
-
-  const handleAviarySelect = (aviaryId: string) => {
-    const aviary = selectedBatch.aviaries.find(a => a.id === aviaryId);
-    if (aviary) {
-      setSelectedAviary(aviary);
+  const handleBatchChange = (batch: any) => {
+    setSelectedBatch(batch);
+    if (batch.aviaries.length > 0) {
+      setSelectedAviary(batch.aviaries[0]);
+    } else {
+      setSelectedAviary(null);
     }
     setIsOpen(false);
   };
 
-  const handleAddAviary = () => {
-    if (!newAviaryName.trim()) {
-      toast({
-        title: "Erro",
-        description: "Nome do aviário não pode estar vazio",
-        variant: "destructive"
-      });
-      return;
+  const handleAviaryChange = (aviary: any) => {
+    setSelectedAviary(aviary);
+    setIsOpen(false);
+  };
+
+  const handleRefresh = async () => {
+    try {
+      await loadAviariesFromAPI();
+    } catch (error) {
+      console.error('Erro ao atualizar aviários:', error);
     }
-
-    const value = parseInt(newAviaryValue);
-    if (isNaN(value) || value <= 0) {
-      toast({
-        title: "Erro",
-        description: "Valor da bandeja deve ser um número positivo",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const newId = `${Date.now()}`;
-    addAviary(selectedBatch.id, {
-      id: newId,
-      name: newAviaryName,
-      trayValue: value
-    });
-
-    setNewAviaryName('');
-    setNewAviaryValue('30');
-    setIsAddDialogOpen(false);
-    
-    toast({
-      title: "Aviário adicionado",
-      description: `${newAviaryName} foi adicionado com sucesso`
-    });
   };
 
   return (
-    <div className="mb-4 relative">
-      <div className="flex flex-col">
-        <span className="text-center mb-1 text-gray-500 text-sm">Aviário</span>
-        <div className="relative">
-          <div className="bg-white border border-gray-300 rounded-md p-1 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="pl-2">{selectedAviary.name}</span>
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-2 text-gray-500 hover:bg-gray-100 rounded"
-              >
-                <ChevronDown size={16} />
-              </button>
-            </div>
+    <div className="relative">
+      {/* Botão principal compacto */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center justify-between bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-egg-green focus:border-transparent transition-colors min-w-[200px]"
+        >
+          <div className="flex flex-col items-start">
+            <span className="text-xs text-gray-500">
+              {selectedBatch?.name || 'Selecione o lote'}
+            </span>
+            <span className="text-sm font-medium text-gray-900">
+              {selectedAviary?.name || 'Nenhum aviário'}
+            </span>
           </div>
-          
-          {isOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-10 max-h-60 overflow-y-auto">
-              {selectedBatch.aviaries.map(aviary => (
-                <button
-                  key={aviary.id}
-                  onClick={() => handleAviarySelect(aviary.id)}
-                  className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
-                    aviary.id === selectedAviary.id ? 'bg-[#F2FCE2] text-[#8BC53F] font-medium' : ''
-                  }`}
-                >
-                  {aviary.name}
-                </button>
-              ))}
-              
-              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                <DialogTrigger asChild>
-                  <button className="w-full text-left px-4 py-2 text-[#8BC53F] font-medium hover:bg-gray-50 flex items-center">
-                    + Adicionar aviário
-                  </button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Adicionar Novo Aviário</DialogTitle>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <label htmlFor="aviary-name" className="text-sm font-medium">
-                        Nome do Aviário
-                      </label>
-                      <Input
-                        id="aviary-name"
-                        value={newAviaryName}
-                        onChange={(e) => setNewAviaryName(e.target.value)}
-                        placeholder="Ex: Aviário 4"
-                      />
-                    </div>
-                    <div className="grid gap-2">
-                      <label htmlFor="tray-value" className="text-sm font-medium">
-                        Valor da Bandeja (ovos)
-                      </label>
-                      <Input
-                        id="tray-value"
-                        type="number"
-                        value={newAviaryValue}
-                        onChange={(e) => setNewAviaryValue(e.target.value)}
-                        placeholder="Ex: 30"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleAddAviary} className="bg-[#8BC53F] hover:bg-[#7AB22F]">
-                      Adicionar
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+          <ChevronDown 
+            className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
+          />
+        </button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={loading}
+          className="p-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+        </Button>
+      </div>
+
+      {/* Dropdown expandido */}
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto">
+          {batches.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">
+              <p>Nenhum lote encontrado</p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={loading}
+                className="mt-2"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Carregar aviários
+              </Button>
             </div>
+          ) : (
+            batches.map((batch) => (
+              <div key={batch.id} className="border-b border-gray-100 last:border-b-0">
+                {/* Header do lote */}
+                <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
+                  <h3 className="font-medium text-gray-900 text-sm">{batch.name}</h3>
+                  <p className="text-xs text-gray-500">
+                    {batch.aviaries.length} aviário{batch.aviaries.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                
+                {/* Lista de aviários */}
+                <div className="max-h-40 overflow-y-auto">
+                  {batch.aviaries.length === 0 ? (
+                    <div className="px-4 py-3 text-sm text-gray-500">
+                      Nenhum aviário neste lote
+                    </div>
+                  ) : (
+                    batch.aviaries.map((aviary) => (
+                      <button
+                        key={aviary.id}
+                        onClick={() => {
+                          handleBatchChange(batch);
+                          handleAviaryChange(aviary);
+                        }}
+                        className={`w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors ${
+                          selectedAviary?.id === aviary.id && selectedBatch?.id === batch.id
+                            ? 'bg-egg-green/10 border-r-2 border-egg-green'
+                            : ''
+                        }`}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-gray-900 text-sm">
+                            {aviary.name}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            ID: {aviary.id}
+                          </span>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            ))
           )}
         </div>
-      </div>
+      )}
+
+      {/* Overlay para fechar o dropdown */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setIsOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import { Plus, Minus, X, Check } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useEggContext } from '@/contexts/EggContext';
@@ -7,11 +6,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from './ui/input';
 
 const EggCounter = () => {
-  const { selectedEgg, updateEggCount, setSelectedEgg, selectedAviary } = useEggContext();
+  const { selectedEgg, updateEggCount, setSelectedEgg, selectedAviary, loading } = useEggContext();
   const [trays, setTrays] = useState(0);
   const [units, setUnits] = useState(0);
   const [editingUnits, setEditingUnits] = useState(false);
   const [unitInputValue, setUnitInputValue] = useState('');
+  const [saving, setSaving] = useState(false);
   const { toast } = useToast();
   const unitInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -47,14 +47,30 @@ const EggCounter = () => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (selectedEgg) {
-      updateEggCount(selectedEgg.id, trays, units);
-      toast({
-        title: "Coleta salva",
-        description: `${selectedEgg.name}: ${trays} bandejas e ${units} unidades`,
-      });
-      setSelectedEgg(null);
+      try {
+        setSaving(true);
+        
+        // Enviar para API
+        await updateEggCount(selectedEgg.id, trays, units);
+        
+        toast({
+          title: "Coleta salva",
+          description: `${selectedEgg.name}: ${trays} bandejas e ${units} unidades enviado para ${selectedAviary?.name}`,
+        });
+        
+        setSelectedEgg(null);
+      } catch (error) {
+        console.error('Erro ao salvar:', error);
+        toast({
+          title: "Erro ao salvar",
+          description: error instanceof Error ? error.message : "Ocorreu um erro ao salvar a coleta.",
+          variant: "destructive"
+        });
+      } finally {
+        setSaving(false);
+      }
     }
   };
 
@@ -104,7 +120,10 @@ const EggCounter = () => {
     <div className="fixed inset-0 bg-black/50 z-20 flex items-center justify-center p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-5 animate-in zoom-in duration-300">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-egg-green-dark">{selectedEgg.name}</h2>
+          <div>
+            <h2 className="text-xl font-bold text-egg-green-dark">{selectedEgg.name}</h2>
+            <p className="text-sm text-gray-500">Aviário: {selectedAviary.name}</p>
+          </div>
           <button onClick={handleCancel} className="p-2 text-gray-400 hover:text-egg-red">
             <X size={20} />
           </button>
@@ -119,14 +138,16 @@ const EggCounter = () => {
                 <div className="flex justify-center items-center gap-4">
                   <button 
                     onClick={() => handleDecrease('trays')}
-                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md disabled:opacity-50"
+                    disabled={saving}
                   >
                     <Minus size={20} />
                   </button>
                   <div className="egg-counter w-16 h-16 text-2xl flex items-center justify-center">{trays}</div>
                   <button 
                     onClick={() => handleIncrease('trays')}
-                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md disabled:opacity-50"
+                    disabled={saving}
                   >
                     <Plus size={20} />
                   </button>
@@ -148,12 +169,14 @@ const EggCounter = () => {
                   onChange={handleInputChange}
                   placeholder="Digite a quantidade de água"
                   className="text-center"
+                  disabled={saving}
                 />
               ) : (
                 <div className="flex justify-center items-center gap-4">
                   <button 
                     onClick={() => handleDecrease('units')}
-                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md disabled:opacity-50"
+                    disabled={saving}
                   >
                     <Minus size={20} />
                   </button>
@@ -168,6 +191,7 @@ const EggCounter = () => {
                       className="w-16 h-16 text-2xl text-center border-none outline-none shadow-inner bg-white font-bold"
                       inputMode="numeric"
                       pattern="[0-9]*"
+                      disabled={saving}
                     />
                   ) : (
                     <div
@@ -179,7 +203,8 @@ const EggCounter = () => {
                   )}
                   <button 
                     onClick={() => handleIncrease('units')}
-                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md"
+                    className="w-12 h-12 rounded-full bg-egg-green text-white flex items-center justify-center shadow-md disabled:opacity-50"
+                    disabled={saving}
                   >
                     <Plus size={20} />
                   </button>
@@ -196,7 +221,7 @@ const EggCounter = () => {
                 <p className="text-center text-xl font-bold text-egg-green-dark">{totalCount}</p>
               </div>
             )}
-            {/* Para Machos/Fêmeas, mostrar “Aves mortas” */}
+            {/* Para Machos/Fêmeas, mostrar "Aves mortas" */}
             {isBird && (
               <div className="bg-[#F2FCE2] p-4 rounded-lg">
                 <h3 className="text-center font-medium text-egg-green-dark">
@@ -214,14 +239,25 @@ const EggCounter = () => {
             variant="outline" 
             className="w-1/2 border-egg-red text-egg-red hover:bg-egg-red/10 hover:text-egg-red" 
             onClick={handleCancel}
+            disabled={saving}
           >
             <X className="mr-2 h-4 w-4" /> Cancelar
           </Button>
           <Button 
             className="w-1/2 bg-egg-green hover:bg-egg-green-dark" 
             onClick={handleSave}
+            disabled={saving || loading}
           >
-            <Check className="mr-2 h-4 w-4" /> Salvar
+            {saving ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Enviando...
+              </>
+            ) : (
+              <>
+                <Check className="mr-2 h-4 w-4" /> Salvar
+              </>
+            )}
           </Button>
         </div>
       </div>
