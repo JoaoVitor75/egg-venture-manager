@@ -43,7 +43,7 @@ const EggContext = createContext<EggContextType | undefined>(undefined);
 // Mapeamento dos tipos de ovos do frontend para a API
 const eggTypeMapping: Record<string, ApiEggType> = {
   '3': ApiEggType.CRACKED, // Ovos Trincados
-  '4': ApiEggType.NEST_DIRTY, // Ovos Sujos de Ninho
+  '4': ApiEggType._DIRTY, // Ovos Sujos de Ninho
   '5': ApiEggType.SMALL, // Ovos Pequenos
   '6': ApiEggType.CLEAN, // Ovos Incubáveis
   '7': ApiEggType.BROKEN, // Ovos Quebrados

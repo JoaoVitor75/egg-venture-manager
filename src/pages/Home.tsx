@@ -1,4 +1,3 @@
-
 import Header from '@/components/Header';
 import EggTypeButton from '@/components/EggTypeButton';
 import EggCounter from '@/components/EggCounter';
@@ -8,11 +7,18 @@ import TrayValueDisplay from '@/components/TrayValueDisplay';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Send } from 'lucide-react';
+import { Send, Loader2 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Home = () => {
-  const { eggs, selectedEgg, setSelectedEgg, clearAllEggCounts } = useEggContext();
+  const { 
+    eggs, 
+    selectedEgg, 
+    setSelectedEgg, 
+    submitAllCollections, 
+    loading, 
+    selectedAviary 
+  } = useEggContext();
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
@@ -23,15 +29,41 @@ const Home = () => {
     };
   }, [setSelectedEgg]);
 
-  const handleSubmitAll = () => {
-    // Aqui você enviaria todos os dados para o servidor
-    toast({
-      title: "Dados enviados",
-      description: "Todas as informações foram enviadas com sucesso!",
-    });
+  const handleSubmitAll = async () => {
+    if (!selectedAviary) {
+      toast({
+        title: "Erro",
+        description: "Selecione um aviário antes de enviar",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const hasCollections = eggs.some(egg => egg.count > 0 || egg.trays > 0 || egg.units > 0);
     
-    // Limpar todos os contadores após enviar
-    clearAllEggCounts();
+    if (!hasCollections) {
+      toast({
+        title: "Aviso",
+        description: "Nenhuma coleta foi registrada para enviar",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      await submitAllCollections();
+      toast({
+        title: "Sucesso!",
+        description: "Todas as coletas foram enviadas com sucesso!",
+      });
+    } catch (error) {
+      console.error('Erro ao enviar coletas:', error);
+      toast({
+        title: "Erro ao enviar",
+        description: "Ocorreu um erro ao enviar as coletas. Tente novamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -50,12 +82,23 @@ const Home = () => {
           ))}
         </div>
 
-        {/* Botão Enviar como no protótipo */}
+        {/* Botão Enviar atualizado */}
         <Button 
           onClick={handleSubmitAll}
+          disabled={loading}
           className="w-full py-3 bg-[#8BC53F] hover:bg-[#7AB22F] text-white font-medium rounded-md mt-4"
         >
-          <Send className="mr-2 h-4 w-4" /> Enviar
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Enviando...
+            </>
+          ) : (
+            <>
+              <Send className="mr-2 h-4 w-4" />
+              Enviar
+            </>
+          )}
         </Button>
       </div>
       
